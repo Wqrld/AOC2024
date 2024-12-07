@@ -46,6 +46,8 @@ function sumPossible2(tape, index, accumulator) {
     if (sumPossible2(tape, index - 1, accumulator - tape[index]) || sumPossible2(tape, index - 1, accumulator / tape[index])) {
         return true;
     }
+    // A slight optimization may be possible by keeping track of the accumulator length and changing that instead of slicing the string,
+    // but this is harder to tackle for subtraction and division.
     if (("" + accumulator).endsWith("" + tape[index])) {
         return sumPossible2(tape, index - 1, Number(("" + accumulator).slice(0, -(("" + tape[index]).length)))) // deconcatenate
     }
