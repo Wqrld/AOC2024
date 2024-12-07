@@ -11,10 +11,12 @@ function sumPossible(i, o, accumulator = 0) {
     return sumPossible(tail, o, accumulator + head) || sumPossible(tail, o, accumulator * head)
 }
 
+const concat = (a, b) => a * Math.pow(10, Math.floor(Math.log10(b)) + 1) + b;
+
 function sumPossible2(i, o, accumulator = 0) {
     if (i.length == 0) return o == accumulator;
     const [head, ...tail] = i;
-    return sumPossible2(tail, o, accumulator + head) || sumPossible2(tail, o, accumulator * head) || sumPossible2(tail, o, Number('' + accumulator + head))
+    return sumPossible2(tail, o, accumulator + head) || sumPossible2(tail, o, accumulator * head) || sumPossible2(tail, o, concat(accumulator, head))
 }
 const startTime1 = performance.now()
 console.log("PT 1:", rules.reduce((acc, [o, i]) => acc + (sumPossible(i, o) ? o : 0), 0))
