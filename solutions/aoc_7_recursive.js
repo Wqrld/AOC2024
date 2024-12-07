@@ -32,10 +32,11 @@ const startTime1 = performance.now()
 const one = rules.reduce((acc, [o, i]) => (sumPossible(i, 0, o) ? acc + o : acc), 0);
 const endTime1 = performance.now()
 console.log("PT 1:", one)
-console.log("Time 1:", endTime1 - startTime1)
+console.log("Time 1:", (endTime1 - startTime1).toFixed(), "ms")
 
 // Part 2
 function sumPossible2(i, index, o, accumulator = 0) {
+    if (accumulator > o) return false;
     return (index == i.length) ?
         o == accumulator :
         (
@@ -49,4 +50,4 @@ const startTime2 = performance.now()
 const two = rules.reduce((acc, [o, i]) => (sumPossible2(i, 0, o) ? acc + o : acc), 0)
 const endTime2 = performance.now()
 console.log("PT 2:", two)
-console.log("Time 2:", endTime2 - startTime2)
+console.log("Time 2:", (endTime2 - startTime2).toFixed(), "ms")
