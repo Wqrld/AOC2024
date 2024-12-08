@@ -1,16 +1,3 @@
-// let input = `............
-// ........0...
-// .....0......
-// .......0....
-// ....0.......
-// ......A.....
-// ............
-// ............
-// ........A...
-// .........A..
-// ............
-// ............`
-
 const fs = require('fs');
 const input = fs.readFileSync('./inputs_prod/8.txt', 'utf-8');
 
@@ -19,6 +6,8 @@ let field = input.split('\n').map(line => line.split(''));
 // Create a 2D array from the input
 //let mask = Array.from({ length: field.length }, () => Array.from({ length: field[0].length }, () => '.'));
 let mask = structuredClone(field);
+
+const PT = 2;
 
 
 let uniqueCharacters = new Set();
@@ -48,8 +37,13 @@ for (const character of uniqueCharacters) {
             if (x1 === x2 && y1 === y2) continue;
             let dx = x2 - x1;
             let dy = y2 - y1;
-            candidates.push([x1 + 2 * dx, y1 + 2 * dy])
-        //    candidates.push([x1 - 2 * dx, y1 - 2 * dy])
+            if (PT == 2) {
+                for (let i = 1; i < (Math.max(field[0].length, field.length)); i++) {
+                    candidates.push([x1 + i * dx, y1 + i * dy])
+                }
+            } else {
+                candidates.push([x1 + 2 * dx, y1 + 2 * dy])
+            }
         }
     }
     console.log(candidates)
