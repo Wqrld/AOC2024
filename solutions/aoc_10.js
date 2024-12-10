@@ -37,30 +37,6 @@ function findReachableEnds(field, start, nextNumber) {
 
 }
 
-/**
- * Count the number of distinct paths to 9 from a given start point recursively.
- * @param {number[][]} field 
- * @param {[number, number]} start 
- * @param {number} nextNumber 
- * @returns number of distinct paths to 9 from this point
- */
-function countReachableEnds(field, start, nextNumber) {
-    if (nextNumber == 10) { // this may cause double counting
-        return 1;
-    }
-
-    let sum = 0;
-    for (const [dx, dy] of directions) {
-        let x = start[0] + dx;
-        let y = start[1] + dy;
-        if (field[y] && field[y][x] == nextNumber) {
-            sum += countReachableEnds(field, [x, y], nextNumber + 1);
-        }
-    }
-    return sum;
-}
-
-
 console.log("PT 1", trailHeads.reduce((acc, trailHead) => acc + findReachableEnds(field, trailHead, 1).filter((v, i, a) => a.findIndex((val, ind, obj) => val[0] == v[0] && val[1] == v[1]) === i).length, 0))
 
-console.log("PT 2", trailHeads.reduce((acc, trailHead) => acc + countReachableEnds(field, trailHead, 1), 0))
+console.log("PT 2", trailHeads.reduce((acc, trailHead) => acc + findReachableEnds(field, trailHead, 1).length, 0))
