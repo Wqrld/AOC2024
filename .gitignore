@@ -2,3 +2,5 @@ inputs_dev/*
 inputs_prod/*
 
 fetchinput.js
+
+node_modules/
