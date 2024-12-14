@@ -31,12 +31,19 @@ let robots: robot[] = input.split("\n").map(
 ).map(([[px, py], [vx, vy]] ) => ({px, py, vx, vy}))
 
 console.log(robots)
+let safetyFactor = 0;
 
 // 100 seconds (steps)
-for (let s = 0; s < 100; s++) {
+for (let s = 0; s < 10000; s++) {
     for (let r of robots) {
         r.px = (r.px + r.vx + xMax) % xMax;
         r.py = (r.py + r.vy + yMax) % yMax;
+    }
+    if (s==99) safetyFactor = calculateSafetyFactor(robots);
+    if (printGrid(robots).includes("###############################")) { // outline of the christmas tree. Started by just checking for #### but that was very common.
+        console.log("\n".repeat(5))
+        console.log(printGrid(robots))
+        console.log(s+1)
     }
 }
 
@@ -58,8 +65,7 @@ function printGrid(robots: robot[]) {
         if(!grid[r.py]) console.log(r.py)
         grid[r.py][r.px] = "#";
     }
-    console.log(grid.map((row) => row.join("")).join("\n"));
+    return grid.map((row) => row.join("")).join("\n");
 }
 
-printGrid(robots);
-console.log(calculateSafetyFactor(robots));
+console.log("Safety factor:", safetyFactor);
