@@ -1,26 +1,26 @@
 const fs = require("fs");
-const input = fs.readFileSync("inputs_prod/15.txt", "utf8");
-
-const [fieldInput, taskinput]: [string, string] = input.split("\n\n");
-
-const field = fieldInput.replaceAll("#", "##").replaceAll("O", "[]").replaceAll(".", "..").replaceAll("@", "@.").split("\n").map((row) => row.split(""));
 
 const DEV = false;
 
-let visited: [number, number][] = [];
-let alreadyReplaced: [number, number][] = [];
-let alreadyPushedFromBottom: [number, number][] = [];
+const input = fs.readFileSync("inputs_prod/15.txt", "utf8");
+const [fieldInput, taskinput]: [string, string] = input.split("\n\n");
+const field = fieldInput.replaceAll("#", "##").replaceAll("O", "[]").replaceAll(".", "..").replaceAll("@", "@.").split("\n").map((row) => row.split("")); // Map matrix
+const tasks = taskinput.replace(/\n/g, ""); // arrow instructions
 
-const tasks = taskinput.replace(/\n/g, "");
+let visited: [number, number][] = []; // make sure each node is only visited once when dealing with multi-character blocks
+let valueAlreadyPushedIn: [number, number][] = []; // Keep track of which fields have had a value pushed in from the bottom or above
 
-if (DEV) console.log(field, tasks)
+if (DEV) console.log("Fields:", field, "Tasks:", tasks)
 
+// Map arrows to the corresponding array offsets
 const mapping = { '^': [0, -1], 'v': [0, 1], '<': [-1, 0], '>': [1, 0] };
 
+// Find the location of the robot, and mask it in the map.
 let robotPos = field.map((row) => row.indexOf("@")).reduce((acc, val, i) => val !== -1 ? [val, i] : acc, [-1, -1]); 
 if (DEV) console.log(robotPos)
 field[robotPos[1]][robotPos[0]] = ".";
 
+// Main loop. Go over all the movement tasks and move the robot and boxes accordingly.
 for (const task of tasks) {
     const [dx, dy] = mapping[task];
     const [x, y] = robotPos;
@@ -59,7 +59,7 @@ for (const task of tasks) {
         if (canMoveUpDown(task === "^" ? -1 : 1, [nx, ny], field, true)) {
             moveUpDown(task == "^" ? -1 : 1, [nx, ny], ".", structuredClone(field), "push");
             visited = [];
-            alreadyPushedFromBottom = [];
+            valueAlreadyPushedIn = [];
             robotPos = [nx, ny];
         }
 
@@ -69,6 +69,16 @@ for (const task of tasks) {
     }
 }
 
+/**
+ * Determines if the robots can move in the specified direction. Recursively moved boxes if needed. Does not edit field.
+ * @param direction -1 (up) or 1 (down)
+ * @param [x, y] x and y coordinates to determine the ability to move from  
+ * @param field matrix of game field
+ * @param needCheckOther if we are a bracket, check if the other bracket still has to be checked
+ * @returns true if we can move, false otherwise
+ * 
+ * @pure
+ */
 function canMoveUpDown(direction: -1 | 1, [x, y]: [number, number], field: string[][], needCheckOther): boolean {
     if (field[y][x] === "#") return false; // walls cannot move
     else if (field[y + direction][x] === "#" && field[y][x] !== ".") return false; // if we have a wall above we cannot move
@@ -85,12 +95,19 @@ function canMoveUpDown(direction: -1 | 1, [x, y]: [number, number], field: strin
 }
 
 
-
+/**
+ * Move the robot up or down, and recursively move the boxes if needed. Does edit field.
+ * @param direction 
+ * @param param1 
+ * @param fillWith 
+ * @param originalField 
+ * @param type 
+ */
 function moveUpDown(direction: -1 | 1, [x, y]: [number, number], fillWith: string, originalField: string[][], type: "sameblock" | "push"): void {
 
-    if (!alreadyPushedFromBottom.some(([cx, cy]) => cx === x && cy === y)) {
+    if (!valueAlreadyPushedIn.some(([cx, cy]) => cx === x && cy === y)) {
         if (type == "push") {
-            alreadyPushedFromBottom.push([x, y]);
+            valueAlreadyPushedIn.push([x, y]);
         }
         field[y][x] = fillWith;
     }
@@ -117,10 +134,21 @@ function moveUpDown(direction: -1 | 1, [x, y]: [number, number], fillWith: strin
 
 }
 
+/**
+ * Prints the field for easier debugging.
+ * @param robotPos 
+ * @param field 
+ * @returns 
+ */
 function printField(robotPos, field) {
     return field.map((row, y) => row.map((cell, x) => x === robotPos[0] && y === robotPos[1] ? "@" : cell).join("")).join("\n");
 }
 
+/**
+ * calculates the final score depending on the location of all boxes
+ * @param field field
+ * @returns 
+ */
 function sumGPSCoordinates(field) {
     return field.reduce((acc, row, y) => acc + row.reduce((acc, cell, x) => acc + (cell === "[" ? x + (100 * y) : 0), 0), 0);
 }
