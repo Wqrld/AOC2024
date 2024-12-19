@@ -62,34 +62,29 @@ console.log("PT 1 Time:", (endTime1 - startTime1).toFixed(), "ms")
  * @param parts list of string parts to use
  * @returns [possibilities, success] where possibilities is the number of ways to generate toGenerate and success is whether it is possible to generate toGenerate
  */
-function fitRecursiveCaching(toGenerate: string, parts: string[]): [number, boolean] {
+function fitRecursiveCaching(toGenerate: string, parts: string[]): number {
     if (cache.has(toGenerate)) return cache.get(toGenerate)!;
-    if (toGenerate == "") return [1, true]
+    if (toGenerate == "") return 1
 
     let possibilities = 0
     const candidateParts = parts.filter(part => toGenerate.startsWith(part))
-    
+
     for (const part of candidateParts) {
         const sliced = toGenerate.slice(part.length);
-        const [possibilitiesCount, success] = fitRecursiveCaching(sliced, parts);
-        cache.set(sliced, [possibilitiesCount, success]);
-        if (success) {
-            possibilities += possibilitiesCount;
-        }
+        const possibilitiesCount = fitRecursiveCaching(sliced, parts);
+        cache.set(sliced, possibilitiesCount);
+        possibilities += possibilitiesCount;
     }
 
-    return [possibilities, possibilities > 0]
+    return possibilities
 }
 
 // Memoization cache for part 2
-const cache = new Map<string, [number, boolean]>();
+const cache = new Map<string, number>();
 
 // Calculate and time part 2
 const startTime2 = performance.now();
-const sum = combinations.reduce((acc, combi) => {
-    const [count, success] = fitRecursiveCaching(combi, parts);
-    return acc + (success ? count : 0);
-}, 0);
+const sum = combinations.reduce((acc, combi) => acc +  fitRecursiveCaching(combi, parts), 0);
 const endTime2 = performance.now();
 
 console.log("PT 2:", sum);
